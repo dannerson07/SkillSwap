@@ -1,13 +1,8 @@
 /* =========================================
-   API CONFIGURATION
+   SKILLSWAP - FRONTEND JAVASCRIPT
 ========================================= */
 
 const API_BASE_URL = "/api";
-
-
-/* =========================================
-   GLOBAL STATE
-========================================= */
 
 let currentMemberId = null;
 
@@ -17,14 +12,15 @@ let currentMemberId = null;
 ========================================= */
 
 document.addEventListener("DOMContentLoaded", () => {
+
     setupNavigation();
+
+    setupQuickActions();
+
     setupForms();
-    setupSectionLinks();
 
     loadDashboard();
-    loadMembers();
-    loadSkills();
-    loadSessions();
+
 });
 
 
@@ -33,84 +29,131 @@ document.addEventListener("DOMContentLoaded", () => {
 ========================================= */
 
 function setupNavigation() {
+
     const navItems = document.querySelectorAll(".nav-item");
 
     navItems.forEach(item => {
+
         item.addEventListener("click", () => {
+
             const sectionName = item.dataset.section;
 
             showSection(sectionName);
+
         });
+
     });
+
 }
 
 
 function showSection(sectionName) {
 
-    // Hide all sections
-    document.querySelectorAll(".content-section")
-        .forEach(section => {
-            section.classList.remove("active");
-        });
+    /* -----------------------------
+       Update sidebar
+    ----------------------------- */
 
-    // Remove active state from navigation
-    document.querySelectorAll(".nav-item")
-        .forEach(item => {
-            item.classList.remove("active");
-        });
+    document.querySelectorAll(".nav-item").forEach(item => {
 
-    // Show selected section
+        item.classList.remove("active");
+
+        if (item.dataset.section === sectionName) {
+            item.classList.add("active");
+        }
+
+    });
+
+
+    /* -----------------------------
+       Hide all sections
+    ----------------------------- */
+
+    document.querySelectorAll(".content-section").forEach(section => {
+
+        section.classList.remove("active");
+
+    });
+
+
+    /* -----------------------------
+       Show selected section
+    ----------------------------- */
+
     const selectedSection =
         document.getElementById(`${sectionName}-section`);
 
     if (selectedSection) {
+
         selectedSection.classList.add("active");
+
     }
 
-    // Activate matching navigation button
-    const selectedNav =
-        document.querySelector(
-            `.nav-item[data-section="${sectionName}"]`
-        );
 
-    if (selectedNav) {
-        selectedNav.classList.add("active");
+    /* -----------------------------
+       Load section data
+    ----------------------------- */
+
+    switch (sectionName) {
+
+        case "dashboard":
+            loadDashboard();
+            break;
+
+        case "members":
+            loadMembers();
+            break;
+
+        case "skills":
+            loadSkills();
+            break;
+
+        case "sessions":
+            loadSessions();
+            break;
+
+        case "ledger":
+
+            if (currentMemberId) {
+                loadLedger(currentMemberId);
+            }
+
+            break;
+
     }
 
-    // Load fresh data when opening sections
-    if (sectionName === "members") {
-        loadMembers();
-    }
-
-    if (sectionName === "skills") {
-        loadSkills();
-    }
-
-    if (sectionName === "sessions") {
-        loadSessions();
-    }
 }
 
 
 /* =========================================
-   SECTION LINKS
+   DASHBOARD QUICK ACTIONS
 ========================================= */
 
-function setupSectionLinks() {
+function setupQuickActions() {
 
-    const links =
-        document.querySelectorAll("[data-section-link]");
+    document
+        .querySelectorAll("[data-section-link]")
+        .forEach(button => {
 
-    links.forEach(link => {
+            button.addEventListener("click", () => {
 
-        link.addEventListener("click", () => {
+                const targetSection =
+                    button.dataset.sectionLink;
 
-            const sectionName =
-                link.dataset.sectionLink;
+                const navItem =
+                    document.querySelector(
+                        `.nav-item[data-section="${targetSection}"]`
+                    );
 
-            showSection(sectionName);
+                if (navItem) {
+
+                    navItem.click();
+
+                }
+
+            });
+
         });
-    });
+
 }
 
 
@@ -120,46 +163,65 @@ function setupSectionLinks() {
 
 function setupForms() {
 
+    /* Member form */
+
     const memberForm =
         document.getElementById("member-form");
+
+    if (memberForm) {
+
+        memberForm.addEventListener(
+            "submit",
+            createMember
+        );
+
+    }
+
+
+    /* Skill form */
 
     const skillForm =
         document.getElementById("skill-form");
 
+    if (skillForm) {
+
+        skillForm.addEventListener(
+            "submit",
+            createSkill
+        );
+
+    }
+
+
+    /* Session form */
+
     const sessionForm =
         document.getElementById("session-form");
+
+    if (sessionForm) {
+
+        sessionForm.addEventListener(
+            "submit",
+            createSession
+        );
+
+    }
+
+
+    /* Ledger button */
 
     const ledgerButton =
         document.getElementById("load-ledger-button");
 
-
-    if (memberForm) {
-        memberForm.addEventListener(
-            "submit",
-            handleMemberSubmit
-        );
-    }
-
-    if (skillForm) {
-        skillForm.addEventListener(
-            "submit",
-            handleSkillSubmit
-        );
-    }
-
-    if (sessionForm) {
-        sessionForm.addEventListener(
-            "submit",
-            handleSessionSubmit
-        );
-    }
-
     if (ledgerButton) {
+
         ledgerButton.addEventListener(
             "click",
-            handleLedgerLoad
+            loadLedgerFromForm
         );
+
     }
+
 }
 
 
@@ -171,76 +233,155 @@ async function loadDashboard() {
 
     try {
 
-        const skills = await fetchData(
-            `${API_BASE_URL}/skill-offers`
-        );
+        const members =
+            await fetchData("/members");
 
-        const sessions = await fetchData(
-            `${API_BASE_URL}/sessions`
-        );
+        const skills =
+            await fetchData("/skill-offers");
 
-        updateDashboardCounts(
-            skills,
-            sessions
-        );
+        const sessions =
+            await fetchData("/sessions");
+
+
+        /* --------------------------------
+           Skill count
+        -------------------------------- */
+
+        const skillCount =
+            document.getElementById(
+                "dashboard-skill-count"
+            );
+
+        if (skillCount) {
+
+            skillCount.textContent =
+                skills.length;
+
+        }
+
+
+        /* --------------------------------
+           Session count
+        -------------------------------- */
+
+        const sessionCount =
+            document.getElementById(
+                "dashboard-session-count"
+            );
+
+        if (sessionCount) {
+
+            sessionCount.textContent =
+                sessions.length;
+
+        }
+
+
+        /* --------------------------------
+           Determine current member
+        -------------------------------- */
+
+        if (!currentMemberId && members.length > 0) {
+
+            currentMemberId =
+                members[members.length - 1].id;
+
+        }
+
+
+        /* --------------------------------
+           Load current member credits
+        -------------------------------- */
+
+        if (currentMemberId) {
+
+            await updateCreditBalance(
+                currentMemberId
+            );
+
+        }
+
+
+        /* --------------------------------
+           Dashboard skills
+        -------------------------------- */
 
         displayDashboardSkills(skills);
 
-        if (currentMemberId) {
-            await loadCurrentMemberCredits();
-        }
+    }
 
-    } catch (error) {
+    catch (error) {
 
         console.error(
             "Dashboard loading error:",
             error
         );
+
     }
+
 }
 
 
-function updateDashboardCounts(
-    skills,
-    sessions
-) {
+/* =========================================
+   CREDIT BALANCE
+========================================= */
 
-    const skillCount =
-        document.getElementById(
-            "dashboard-skill-count"
-        );
+async function updateCreditBalance(memberId) {
 
-    const sessionCount =
-        document.getElementById(
-            "dashboard-session-count"
-        );
+    try {
 
-    if (skillCount) {
-        skillCount.textContent = skills.length;
-    }
+        const balance =
+            await fetchData(
+                `/members/${memberId}/credits`
+            );
 
-    if (sessionCount) {
 
-        if (currentMemberId) {
+        /* Header */
 
-            const mySessions =
-                sessions.filter(session =>
-                    session.requester?.id === currentMemberId
-                    ||
-                    session.skillOffer?.provider?.id === currentMemberId
-                );
+        const headerBalance =
+            document.getElementById(
+                "header-credit-balance"
+            );
 
-            sessionCount.textContent =
-                mySessions.length;
+        if (headerBalance) {
 
-        } else {
+            headerBalance.textContent =
+                Number(balance).toFixed(1);
 
-            sessionCount.textContent =
-                sessions.length;
         }
+
+
+        /* Dashboard */
+
+        const dashboardBalance =
+            document.getElementById(
+                "dashboard-credit-balance"
+            );
+
+        if (dashboardBalance) {
+
+            dashboardBalance.textContent =
+                Number(balance).toFixed(1);
+
+        }
+
     }
+
+    catch (error) {
+
+        console.error(
+            "Credit balance error:",
+            error
+        );
+
+    }
+
 }
 
+
+/* =========================================
+   DASHBOARD SKILLS
+========================================= */
 
 function displayDashboardSkills(skills) {
 
@@ -253,24 +394,109 @@ function displayDashboardSkills(skills) {
         return;
     }
 
-    if (skills.length === 0) {
+
+    container.innerHTML = "";
+
+
+    if (!skills || skills.length === 0) {
 
         container.innerHTML = `
             <div class="empty-state">
-                <p>No skills available yet.</p>
+
+                <div class="empty-state-icon">
+                    ✦
+                </div>
+
+                <strong>
+                    No skills available yet
+                </strong>
+
+                <p>
+                    Be the first member to offer a skill.
+                </p>
+
             </div>
         `;
 
         return;
+
     }
 
-    const limitedSkills =
-        skills.slice(0, 4);
 
-    container.innerHTML =
-        limitedSkills
-            .map(createSkillCard)
-            .join("");
+    /* Show maximum 4 skills on dashboard */
+
+    skills.slice(0, 4).forEach(skill => {
+
+        const provider =
+            skill.provider
+                ? skill.provider.name
+                : "Community member";
+
+
+        const card =
+            document.createElement("div");
+
+        card.className = "skill-card";
+
+
+        card.innerHTML = `
+
+            <h4>
+                ${escapeHtml(skill.skillName)}
+            </h4>
+
+            <p>
+                ${escapeHtml(
+                    skill.description ||
+                    "No description provided."
+                )}
+            </p>
+
+            <div class="skill-provider">
+                Offered by
+                <strong>
+                    ${escapeHtml(provider)}
+                </strong>
+            </div>
+
+            <div class="skill-hours">
+                ${skill.availableHours} hours available
+            </div>
+
+            <button
+                class="primary-button full-width"
+                onclick="goToSkills()"
+            >
+                Request This Skill
+            </button>
+
+        `;
+
+
+        container.appendChild(card);
+
+    });
+
+}
+
+
+/* =========================================
+   GO TO SKILLS
+========================================= */
+
+function goToSkills() {
+
+    const navItem =
+        document.querySelector(
+            '.nav-item[data-section="skills"]'
+        );
+
+    if (navItem) {
+
+        navItem.click();
+
+    }
+
 }
 
 
@@ -280,30 +506,24 @@ function displayDashboardSkills(skills) {
 
 async function loadMembers() {
 
-    const container =
-        document.getElementById(
-            "members-list"
-        );
-
-    if (!container) {
-        return;
-    }
-
     try {
 
-        const members = await fetchData(
-            `${API_BASE_URL}/members`
-        );
+        const members =
+            await fetchData("/members");
 
         displayMembers(members);
 
-    } catch (error) {
-
-        displayError(
-            container,
-            "Unable to load members."
-        );
     }
+
+    catch (error) {
+
+        console.error(
+            "Member loading error:",
+            error
+        );
+
+    }
+
 }
 
 
@@ -314,43 +534,85 @@ function displayMembers(members) {
             "members-list"
         );
 
-    if (members.length === 0) {
+    if (!container) {
+        return;
+    }
+
+
+    container.innerHTML = "";
+
+
+    if (!members || members.length === 0) {
 
         container.innerHTML = `
             <div class="empty-state">
-                <p>No members found.</p>
+
+                <div class="empty-state-icon">
+                    ◉
+                </div>
+
+                <strong>
+                    No members yet
+                </strong>
+
+                <p>
+                    Create the first SkillSwap member.
+                </p>
+
             </div>
         `;
 
         return;
+
     }
 
-    container.innerHTML =
-        members
-            .map(member => `
-                <div class="member-card">
 
-                    <h3>
-                        ${escapeHtml(member.name)}
-                    </h3>
+    members.forEach(member => {
 
-                    <p class="member-email">
-                        ${escapeHtml(member.email)}
-                    </p>
+        const card =
+            document.createElement("div");
 
-                    <p class="member-credits">
-                        ${formatNumber(member.creditBalance)}
-                        time credits
-                    </p>
+        card.className = "member-card";
 
-                    <p>
-                        Member ID:
-                        ${member.id}
-                    </p>
 
-                </div>
-            `)
-            .join("");
+        const initial =
+            member.name
+                ? member.name.charAt(0).toUpperCase()
+                : "?";
+
+
+        card.innerHTML = `
+
+            <div class="member-avatar">
+                ${escapeHtml(initial)}
+            </div>
+
+            <div>
+
+                <h4>
+                    ${escapeHtml(member.name)}
+                </h4>
+
+                <p>
+                    ${escapeHtml(member.email)}
+                </p>
+
+                <p>
+                    ${Number(
+                        member.creditBalance || 0
+                    ).toFixed(1)}
+                    learning hours available
+                </p>
+
+            </div>
+
+        `;
+
+
+        container.appendChild(card);
+
+    });
+
 }
 
 
@@ -358,34 +620,39 @@ function displayMembers(members) {
    CREATE MEMBER
 ========================================= */
 
-async function handleMemberSubmit(event) {
+async function createMember(event) {
 
     event.preventDefault();
+
 
     const name =
         document.getElementById(
             "member-name"
         ).value.trim();
 
+
     const email =
         document.getElementById(
             "member-email"
         ).value.trim();
 
+
     if (!name || !email) {
+
         showNotification(
-            "Please fill in all fields.",
-            "error"
+            "Please enter your name and email."
         );
 
         return;
+
     }
+
 
     try {
 
         const member =
             await fetchData(
-                `${API_BASE_URL}/members`,
+                "/members",
                 {
                     method: "POST",
 
@@ -401,24 +668,39 @@ async function handleMemberSubmit(event) {
                 }
             );
 
-        showNotification(
-            `Member ${member.name} created successfully!`,
-            "success"
-        );
 
-        event.target.reset();
+        currentMemberId =
+            member.id;
 
-        loadMembers();
 
-        loadDashboard();
+        document
+            .getElementById("member-form")
+            .reset();
 
-    } catch (error) {
 
         showNotification(
-            error.message,
-            "error"
+            `Welcome to SkillSwap, ${member.name}!`
         );
+
+
+        await loadMembers();
+
+        await updateCreditBalance(
+            currentMemberId
+        );
+
+        await loadDashboard();
+
     }
+
+    catch (error) {
+
+        showNotification(
+            error.message
+        );
+
+    }
+
 }
 
 
@@ -428,30 +710,26 @@ async function handleMemberSubmit(event) {
 
 async function loadSkills() {
 
-    const container =
-        document.getElementById(
-            "skills-list"
-        );
-
-    if (!container) {
-        return;
-    }
-
     try {
 
-        const skills = await fetchData(
-            `${API_BASE_URL}/skill-offers`
-        );
+        const skills =
+            await fetchData(
+                "/skill-offers"
+            );
 
         displaySkills(skills);
 
-    } catch (error) {
-
-        displayError(
-            container,
-            "Unable to load skills."
-        );
     }
+
+    catch (error) {
+
+        console.error(
+            "Skill loading error:",
+            error
+        );
+
+    }
+
 }
 
 
@@ -462,38 +740,58 @@ function displaySkills(skills) {
             "skills-list"
         );
 
-    if (skills.length === 0) {
+    if (!container) {
+        return;
+    }
+
+
+    container.innerHTML = "";
+
+
+    if (!skills || skills.length === 0) {
 
         container.innerHTML = `
             <div class="empty-state">
-                <p>No skills available yet.</p>
+
+                <div class="empty-state-icon">
+                    ✦
+                </div>
+
+                <strong>
+                    No skills available
+                </strong>
+
+                <p>
+                    Offer your first skill to the community.
+                </p>
+
             </div>
         `;
 
         return;
+
     }
 
-    container.innerHTML =
-        skills
-            .map(createSkillCard)
-            .join("");
-}
+
+    skills.forEach(skill => {
+
+        const provider =
+            skill.provider
+                ? skill.provider.name
+                : "Community member";
 
 
-function createSkillCard(skill) {
+        const card =
+            document.createElement("div");
 
-    const providerName =
-        skill.provider?.name || "Unknown member";
+        card.className = "skill-card";
 
-    const providerId =
-        skill.provider?.id || "-";
 
-    return `
-        <div class="skill-card">
+        card.innerHTML = `
 
-            <h3>
+            <h4>
                 ${escapeHtml(skill.skillName)}
-            </h3>
+            </h4>
 
             <p>
                 ${escapeHtml(
@@ -502,21 +800,93 @@ function createSkillCard(skill) {
                 )}
             </p>
 
-            <p class="skill-provider">
-                Offered by:
+            <div class="skill-provider">
+
+                Offered by
                 <strong>
-                    ${escapeHtml(providerName)}
+                    ${escapeHtml(provider)}
                 </strong>
-                (ID: ${providerId})
-            </p>
 
-            <p class="skill-hours">
-                ${formatNumber(skill.availableHours)}
+            </div>
+
+            <div class="skill-hours">
+
+                ${skill.availableHours}
                 hours available
-            </p>
 
-        </div>
-    `;
+            </div>
+
+            <button
+                class="primary-button full-width"
+                onclick="prepareSessionRequest(${skill.id})"
+            >
+                Request This Skill
+            </button>
+
+        `;
+
+
+        container.appendChild(card);
+
+    });
+
+}
+
+
+/* =========================================
+   PREPARE SESSION REQUEST
+========================================= */
+
+function prepareSessionRequest(skillId) {
+
+    const skillInput =
+        document.getElementById(
+            "session-skill"
+        );
+
+
+    if (skillInput) {
+
+        skillInput.value =
+            skillId;
+
+    }
+
+
+    const requesterInput =
+        document.getElementById(
+            "session-requester"
+        );
+
+
+    if (
+        requesterInput &&
+        currentMemberId
+    ) {
+
+        requesterInput.value =
+            currentMemberId;
+
+    }
+
+
+    const navItem =
+        document.querySelector(
+            '.nav-item[data-section="sessions"]'
+        );
+
+
+    if (navItem) {
+
+        navItem.click();
+
+    }
+
+
+    showNotification(
+        "Skill selected. Enter the learning hours you need."
+    );
+
 }
 
 
@@ -524,19 +894,22 @@ function createSkillCard(skill) {
    CREATE SKILL
 ========================================= */
 
-async function handleSkillSubmit(event) {
+async function createSkill(event) {
 
     event.preventDefault();
+
 
     const skillName =
         document.getElementById(
             "skill-name"
         ).value.trim();
 
+
     const description =
         document.getElementById(
             "skill-description"
         ).value.trim();
+
 
     const availableHours =
         Number(
@@ -544,6 +917,7 @@ async function handleSkillSubmit(event) {
                 "skill-hours"
             ).value
         );
+
 
     const providerId =
         Number(
@@ -560,18 +934,18 @@ async function handleSkillSubmit(event) {
     ) {
 
         showNotification(
-            "Please fill in all required fields.",
-            "error"
+            "Please complete all required skill fields."
         );
 
         return;
+
     }
 
 
     try {
 
         await fetchData(
-            `${API_BASE_URL}/skill-offers`,
+            "/skill-offers",
             {
                 method: "POST",
 
@@ -593,31 +967,37 @@ async function handleSkillSubmit(event) {
 
                     providerId:
                         providerId
+
                 })
+
             }
         );
 
 
+        document
+            .getElementById("skill-form")
+            .reset();
+
+
         showNotification(
-            "Skill offer created successfully!",
-            "success"
+            "Skill successfully offered!"
         );
 
 
-        event.target.reset();
+        await loadSkills();
 
-        loadSkills();
+        await loadDashboard();
 
-        loadDashboard();
-
-
-    } catch (error) {
-
-        showNotification(
-            error.message,
-            "error"
-        );
     }
+
+    catch (error) {
+
+        showNotification(
+            error.message
+        );
+
+    }
+
 }
 
 
@@ -627,31 +1007,26 @@ async function handleSkillSubmit(event) {
 
 async function loadSessions() {
 
-    const container =
-        document.getElementById(
-            "sessions-list"
-        );
-
-    if (!container) {
-        return;
-    }
-
     try {
 
         const sessions =
             await fetchData(
-                `${API_BASE_URL}/sessions`
+                "/sessions"
             );
 
         displaySessions(sessions);
 
-    } catch (error) {
-
-        displayError(
-            container,
-            "Unable to load sessions."
-        );
     }
+
+    catch (error) {
+
+        console.error(
+            "Session loading error:",
+            error
+        );
+
+    }
+
 }
 
 
@@ -662,175 +1037,221 @@ function displaySessions(sessions) {
             "sessions-list"
         );
 
-    if (sessions.length === 0) {
-
-        container.innerHTML = `
-            <div class="empty-state">
-                <p>No sessions found.</p>
-            </div>
-        `;
-
+    if (!container) {
         return;
     }
 
 
-    container.innerHTML =
-        sessions
-            .map(createSessionCard)
-            .join("");
-}
+    container.innerHTML = "";
 
 
-function createSessionCard(session) {
+    if (!sessions || sessions.length === 0) {
 
-    const skillName =
-        session.skillOffer?.skillName ||
-        "Unknown skill";
+        container.innerHTML = `
+            <div class="empty-state">
 
-    const requesterName =
-        session.requester?.name ||
-        "Unknown requester";
+                <div class="empty-state-icon">
+                    ◷
+                </div>
 
-    const providerName =
-        session.skillOffer?.provider?.name ||
-        "Unknown provider";
+                <strong>
+                    No learning sessions yet
+                </strong>
 
-
-    const statusClass =
-        `status-${String(
-            session.status
-        ).toLowerCase()}`;
-
-
-    let actions = "";
-
-
-    /*
-       Provider can confirm/reject
-       a REQUESTED session.
-    */
-
-    if (
-        session.status === "REQUESTED" &&
-        session.skillOffer?.provider?.id
-    ) {
-
-        const providerId =
-            session.skillOffer.provider.id;
-
-        actions = `
-            <div class="action-buttons">
-
-                <button
-                    class="confirm-button"
-                    onclick="confirmSession(
-                        ${session.id},
-                        ${providerId}
-                    )">
-
-                    Confirm
-
-                </button>
-
-                <button
-                    class="reject-button"
-                    onclick="rejectSession(
-                        ${session.id},
-                        ${providerId}
-                    )">
-
-                    Reject
-
-                </button>
+                <p>
+                    Request a skill to start learning.
+                </p>
 
             </div>
         `;
+
+        return;
+
     }
 
 
-    /*
-       Confirmed sessions can be completed.
-    */
+    sessions.forEach(session => {
 
-    if (session.status === "CONFIRMED") {
+        const card =
+            document.createElement("div");
 
-        actions = `
-            <div class="action-buttons">
-
-                <button
-                    class="complete-button"
-                    onclick="completeSession(
-                        ${session.id}
-                    )">
-
-                    Complete Session
-
-                </button>
-
-            </div>
-        `;
-    }
+        card.className =
+            "session-card";
 
 
-    return `
-        <div class="session-card">
+        const skillName =
+            session.skillOffer
+                ? session.skillOffer.skillName
+                : "Skill session";
 
-            <h3>
-                ${escapeHtml(skillName)}
-            </h3>
 
-            <div class="session-info">
+        const requesterName =
+            session.requester
+                ? session.requester.name
+                : "Unknown";
 
-                <span>
-                    Requester:
-                    <strong>
+
+        const status =
+            session.status || "REQUESTED";
+
+
+        const statusClass =
+            `status-${status.toLowerCase()}`;
+
+
+        card.innerHTML = `
+
+            <div style="
+                display:flex;
+                justify-content:space-between;
+                align-items:flex-start;
+                gap:15px;
+            ">
+
+                <div>
+
+                    <h4>
+                        ${escapeHtml(skillName)}
+                    </h4>
+
+                    <p>
+                        Requested by
                         ${escapeHtml(requesterName)}
-                    </strong>
-                </span>
+                    </p>
 
-                <span>
-                    Provider:
-                    <strong>
-                        ${escapeHtml(providerName)}
-                    </strong>
-                </span>
+                    <p>
+                        Requested:
+                        ${session.requestedHours}
+                        hours
+                    </p>
 
-                <span>
-                    Requested:
-                    ${formatNumber(
-                        session.requestedHours
-                    )}
-                    hours
-                </span>
-
-                <span>
-                    Actual:
-                    ${formatNumber(
+                    ${
                         session.actualHours
-                    )}
-                    hours
+                            ? `
+                                <p>
+                                    Completed:
+                                    ${session.actualHours}
+                                    hours
+                                </p>
+                            `
+                            : ""
+                    }
+
+                </div>
+
+                <span class="status-badge ${statusClass}">
+                    ${escapeHtml(status)}
                 </span>
 
             </div>
 
-            <span
-                class="status-badge
-                ${statusClass}">
-                ${session.status}
-            </span>
+            <div class="session-actions">
 
-            ${actions}
+                ${createSessionActions(session)}
 
-        </div>
-    `;
+            </div>
+
+        `;
+
+
+        container.appendChild(card);
+
+    });
+
 }
 
 
 /* =========================================
-   CREATE SESSION REQUEST
+   SESSION ACTIONS
 ========================================= */
 
-async function handleSessionSubmit(event) {
+function createSessionActions(session) {
+
+    let html = "";
+
+
+    /* Requested */
+
+    if (
+        session.status === "REQUESTED"
+    ) {
+
+        const providerId =
+            session.skillOffer &&
+            session.skillOffer.provider
+                ? session.skillOffer.provider.id
+                : null;
+
+
+        if (providerId) {
+
+            html += `
+
+                <button
+                    class="primary-button"
+                    onclick="
+                        confirmSession(
+                            ${session.id},
+                            ${providerId}
+                        )
+                    "
+                >
+                    Confirm
+                </button>
+
+                <button
+                    class="secondary-button"
+                    onclick="
+                        rejectSession(
+                            ${session.id},
+                            ${providerId}
+                        )
+                    "
+                >
+                    Reject
+                </button>
+
+            `;
+
+        }
+
+    }
+
+
+    /* Confirmed */
+
+    if (
+        session.status === "CONFIRMED"
+    ) {
+
+        html += `
+
+            <button
+                class="primary-button"
+                onclick="
+                    completeSession(
+                        ${session.id}
+                    )
+                "
+            >
+                Complete Session
+            </button>
+
+        `;
+
+    }
+
+
+    return html;
+
+}
+
+
+/* =========================================
+   CREATE SESSION
+========================================= */
+
+async function createSession(event) {
 
     event.preventDefault();
 
@@ -866,18 +1287,18 @@ async function handleSessionSubmit(event) {
     ) {
 
         showNotification(
-            "Please fill in all required fields.",
-            "error"
+            "Please complete all session fields."
         );
 
         return;
+
     }
 
 
     try {
 
         await fetchData(
-            `${API_BASE_URL}/sessions`,
+            "/sessions",
             {
                 method: "POST",
 
@@ -896,31 +1317,37 @@ async function handleSessionSubmit(event) {
 
                     requestedHours:
                         requestedHours
+
                 })
+
             }
         );
 
 
+        document
+            .getElementById("session-form")
+            .reset();
+
+
         showNotification(
-            "Session request created!",
-            "success"
+            "Learning session requested!"
         );
 
 
-        event.target.reset();
+        await loadSessions();
 
-        loadSessions();
+        await loadDashboard();
 
-        loadDashboard();
-
-
-    } catch (error) {
-
-        showNotification(
-            error.message,
-            "error"
-        );
     }
+
+    catch (error) {
+
+        showNotification(
+            error.message
+        );
+
+    }
+
 }
 
 
@@ -936,7 +1363,7 @@ async function confirmSession(
     try {
 
         await fetchData(
-            `${API_BASE_URL}/sessions/${sessionId}/confirm/${providerId}`,
+            `/sessions/${sessionId}/confirm/${providerId}`,
             {
                 method: "PUT"
             }
@@ -944,21 +1371,24 @@ async function confirmSession(
 
 
         showNotification(
-            "Session confirmed!",
-            "success"
+            "Session confirmed!"
         );
 
 
-        loadSessions();
+        await loadSessions();
 
+        await loadDashboard();
 
-    } catch (error) {
+    }
+
+    catch (error) {
 
         showNotification(
-            error.message,
-            "error"
+            error.message
         );
+
     }
+
 }
 
 
@@ -974,7 +1404,7 @@ async function rejectSession(
     try {
 
         await fetchData(
-            `${API_BASE_URL}/sessions/${sessionId}/reject/${providerId}`,
+            `/sessions/${sessionId}/reject/${providerId}`,
             {
                 method: "PUT"
             }
@@ -982,21 +1412,24 @@ async function rejectSession(
 
 
         showNotification(
-            "Session rejected.",
-            "success"
+            "Session rejected."
         );
 
 
-        loadSessions();
+        await loadSessions();
 
+        await loadDashboard();
 
-    } catch (error) {
+    }
+
+    catch (error) {
 
         showNotification(
-            error.message,
-            "error"
+            error.message
         );
+
     }
+
 }
 
 
@@ -1010,12 +1443,16 @@ async function completeSession(
 
     const actualHours =
         prompt(
-            "Enter actual hours completed:"
+            "Enter the actual learning hours completed:"
         );
 
 
-    if (actualHours === null) {
+    if (
+        actualHours === null
+    ) {
+
         return;
+
     }
 
 
@@ -1023,21 +1460,24 @@ async function completeSession(
         Number(actualHours);
 
 
-    if (!hours || hours <= 0) {
+    if (
+        !hours ||
+        hours <= 0
+    ) {
 
         showNotification(
-            "Please enter a valid number of hours.",
-            "error"
+            "Please enter a valid number of hours."
         );
 
         return;
+
     }
 
 
     try {
 
         await fetchData(
-            `${API_BASE_URL}/sessions/${sessionId}/complete`,
+            `/sessions/${sessionId}/complete`,
             {
                 method: "PUT",
 
@@ -1047,40 +1487,43 @@ async function completeSession(
                 },
 
                 body: JSON.stringify({
-                    actualHours: hours
+
+                    actualHours:
+                        hours
+
                 })
+
             }
         );
 
 
         showNotification(
-            "Session completed and credits transferred!",
-            "success"
+            "Session completed and credits transferred!"
         );
 
 
-        loadSessions();
+        await loadSessions();
 
-        loadSkills();
+        await loadDashboard();
 
-        loadDashboard();
+    }
 
-
-    } catch (error) {
+    catch (error) {
 
         showNotification(
-            error.message,
-            "error"
+            error.message
         );
+
     }
+
 }
 
 
 /* =========================================
-   LEDGER
+   CREDIT LEDGER
 ========================================= */
 
-async function handleLedgerLoad() {
+async function loadLedgerFromForm() {
 
     const memberId =
         Number(
@@ -1093,64 +1536,51 @@ async function handleLedgerLoad() {
     if (!memberId) {
 
         showNotification(
-            "Please enter a member ID.",
-            "error"
+            "Please enter a member ID."
         );
 
         return;
+
     }
 
 
-    currentMemberId = memberId;
+    currentMemberId =
+        memberId;
 
 
-    try {
-
-        await loadLedger(memberId);
-
-        await loadCurrentMemberCredits();
-
-        await loadDashboard();
+    await loadLedger(
+        memberId
+    );
 
 
-    } catch (error) {
+    await updateCreditBalance(
+        memberId
+    );
 
-        showNotification(
-            error.message,
-            "error"
-        );
-    }
 }
 
 
 async function loadLedger(memberId) {
 
-    const container =
-        document.getElementById(
-            "ledger-list"
-        );
-
-
     try {
 
-        const ledger =
+        const entries =
             await fetchData(
-                `${API_BASE_URL}/ledger/member/${memberId}`
+                `/ledger/member/${memberId}`
             );
 
+        displayLedger(entries);
 
-        displayLedger(ledger);
+    }
 
+    catch (error) {
 
-    } catch (error) {
-
-        displayError(
-            container,
-            "Unable to load ledger."
+        showNotification(
+            error.message
         );
 
-        throw error;
     }
+
 }
 
 
@@ -1161,209 +1591,178 @@ function displayLedger(entries) {
             "ledger-list"
         );
 
+    if (!container) {
+        return;
+    }
 
-    if (entries.length === 0) {
+
+    container.innerHTML = "";
+
+
+    if (
+        !entries ||
+        entries.length === 0
+    ) {
 
         container.innerHTML = `
             <div class="empty-state">
+
+                <div class="empty-state-icon">
+                    ↔
+                </div>
+
+                <strong>
+                    No credit transactions yet
+                </strong>
+
                 <p>
-                    No credit transactions found.
+                    Completed sessions will appear here.
                 </p>
+
             </div>
         `;
 
         return;
+
     }
 
 
-    container.innerHTML =
-        entries
-            .map(entry => {
+    entries.forEach(entry => {
 
-                const isCredit =
-                    entry.transactionType ===
-                    "CREDIT";
+        const item =
+            document.createElement("div");
 
-
-                const cssClass =
-                    isCredit
-                        ? "ledger-credit"
-                        : "ledger-debit";
+        item.className =
+            "ledger-item";
 
 
-                const symbol =
-                    isCredit
-                        ? "+"
-                        : "-";
+        const isCredit =
+            entry.transactionType === "CREDIT";
 
 
-                return `
-                    <div class="ledger-entry">
+        const sign =
+            isCredit
+                ? "+"
+                : "-";
 
-                        <div>
 
-                            <strong>
-                                ${entry.transactionType}
-                            </strong>
+        const amountClass =
+            isCredit
+                ? "ledger-credit"
+                : "ledger-debit";
 
-                            <p>
-                                Session #${entry.sessionRequest?.id || "-"}
-                            </p>
 
-                        </div>
+        const label =
+            isCredit
+                ? "Credits earned"
+                : "Credits used";
 
-                        <span class="${cssClass}">
-                            ${symbol}
-                            ${formatNumber(
-                                entry.amount
-                            )}
-                            credits
-                        </span>
 
-                    </div>
-                `;
+        item.innerHTML = `
 
-            })
-            .join("");
+            <div>
+
+                <strong>
+                    ${label}
+                </strong>
+
+                <small>
+                    Session #${entry.sessionRequestId ||
+                    (entry.sessionRequest
+                        ? entry.sessionRequest.id
+                        : "-")}
+                </small>
+
+            </div>
+
+            <strong class="${amountClass}">
+                ${sign}${entry.amount} hrs
+            </strong>
+
+        `;
+
+
+        container.appendChild(item);
+
+    });
+
 }
 
 
 /* =========================================
-   MEMBER CREDIT BALANCE
-========================================= */
-
-async function loadCurrentMemberCredits() {
-
-    if (!currentMemberId) {
-        return;
-    }
-
-
-    try {
-
-        const balance =
-            await fetchData(
-                `${API_BASE_URL}/members/${currentMemberId}/credits`
-            );
-
-
-        updateCreditDisplays(balance);
-
-
-    } catch (error) {
-
-        console.error(
-            "Unable to load credit balance:",
-            error
-        );
-    }
-}
-
-
-function updateCreditDisplays(balance) {
-
-    const headerBalance =
-        document.getElementById(
-            "header-credit-balance"
-        );
-
-
-    const dashboardBalance =
-        document.getElementById(
-            "dashboard-credit-balance"
-        );
-
-
-    const formatted =
-        formatNumber(balance);
-
-
-    if (headerBalance) {
-        headerBalance.textContent =
-            formatted;
-    }
-
-
-    if (dashboardBalance) {
-        dashboardBalance.textContent =
-            formatted;
-    }
-}
-
-
-/* =========================================
-   GENERIC API FUNCTION
+   GENERIC FETCH FUNCTION
 ========================================= */
 
 async function fetchData(
-    url,
+    endpoint,
     options = {}
 ) {
 
     const response =
         await fetch(
-            url,
+            `${API_BASE_URL}${endpoint}`,
             options
         );
 
 
-    /*
-       If the backend returns an error,
-       try to read its JSON message.
-    */
+    let data = null;
+
+
+    try {
+
+        data =
+            await response.json();
+
+    }
+
+    catch {
+
+        data = null;
+
+    }
+
 
     if (!response.ok) {
 
-        let errorMessage =
+        let message =
             "Something went wrong.";
 
 
-        try {
+        if (data) {
 
-            const errorData =
-                await response.json();
+            if (data.message) {
 
+                message =
+                    data.message;
 
-            if (errorData.message) {
-
-                errorMessage =
-                    errorData.message;
-
-            } else {
-
-                const firstError =
-                    Object.values(errorData)[0];
-
-                if (firstError) {
-                    errorMessage =
-                        firstError;
-                }
             }
 
-        } catch (error) {
+            else {
 
-            errorMessage =
-                `Request failed with status ${response.status}`;
+                const errors =
+                    Object.values(data);
+
+                if (errors.length > 0) {
+
+                    message =
+                        errors.join(", ");
+
+                }
+
+            }
+
         }
 
 
         throw new Error(
-            errorMessage
+            message
         );
+
     }
 
 
-    /*
-       Some successful requests may return
-       no content, such as DELETE.
-    */
+    return data;
 
-    if (response.status === 204) {
-        return null;
-    }
-
-
-    return response.json();
 }
 
 
@@ -1371,10 +1770,7 @@ async function fetchData(
    NOTIFICATIONS
 ========================================= */
 
-function showNotification(
-    message,
-    type = "success"
-) {
+function showNotification(message) {
 
     const notification =
         document.getElementById(
@@ -1391,66 +1787,25 @@ function showNotification(
         message;
 
 
-    notification.className =
-        `notification show ${type}`;
+    notification.classList.add(
+        "show"
+    );
 
 
     setTimeout(() => {
 
-        notification.className =
-            "notification";
+        notification.classList.remove(
+            "show"
+        );
 
     }, 3500);
+
 }
 
 
 /* =========================================
-   ERROR DISPLAY
+   HTML SAFETY
 ========================================= */
-
-function displayError(
-    container,
-    message
-) {
-
-    if (!container) {
-        return;
-    }
-
-
-    container.innerHTML = `
-        <div class="empty-state">
-            <p>
-                ${escapeHtml(message)}
-            </p>
-        </div>
-    `;
-}
-
-
-/* =========================================
-   FORMATTING HELPERS
-========================================= */
-
-function formatNumber(value) {
-
-    if (
-        value === null ||
-        value === undefined
-    ) {
-        return "0.0";
-    }
-
-
-    return Number(value)
-        .toFixed(1);
-}
-
-
-/*
-   Prevent API-provided text from being
-   interpreted as HTML.
-*/
 
 function escapeHtml(value) {
 
@@ -1458,14 +1813,37 @@ function escapeHtml(value) {
         value === null ||
         value === undefined
     ) {
+
         return "";
+
     }
 
 
     return String(value)
-        .replace(/&/g, "&amp;")
-        .replace(/</g, "&lt;")
-        .replace(/>/g, "&gt;")
-        .replace(/"/g, "&quot;")
-        .replace(/'/g, "&#039;");
+
+        .replace(
+            /&/g,
+            "&amp;"
+        )
+
+        .replace(
+            /</g,
+            "&lt;"
+        )
+
+        .replace(
+            />/g,
+            "&gt;"
+        )
+
+        .replace(
+            /"/g,
+            "&quot;"
+        )
+
+        .replace(
+            /'/g,
+            "&#039;"
+        );
+
 }

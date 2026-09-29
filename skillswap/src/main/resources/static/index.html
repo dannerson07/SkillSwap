@@ -1,178 +1,369 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <title>SkillSwap - Community Skill Exchange</title>
+    <title>SkillSwap | Community Skill Exchange</title>
 
     <link rel="stylesheet" href="style.css">
 </head>
 
 <body>
 
-    <!-- ==============================
-         HEADER
-    =============================== -->
-    <header class="header">
+<!-- =========================
+     HEADER
+========================= -->
+<header class="top-header">
 
-        <div class="logo">
-            <span class="logo-icon">⇄</span>
-            <span>SkillSwap</span>
+    <div class="brand">
+        <div class="brand-icon">S</div>
+
+        <div>
+            <h1>SkillSwap</h1>
+            <span>COMMUNITY SKILL EXCHANGE</span>
         </div>
+    </div>
 
+    <div class="header-right">
         <div class="credit-display">
-            <span class="credit-label">Time Credits</span>
-            <span id="header-credit-balance">0.0</span>
+            <span class="credit-icon">⏱</span>
+
+            <div>
+                <small>Learning Time</small>
+                <strong>
+                    <span id="header-credit-balance">0.0</span> hrs
+                </strong>
+            </div>
+        </div>
+    </div>
+
+</header>
+
+
+<!-- =========================
+     MAIN LAYOUT
+========================= -->
+<div class="app-layout">
+
+    <!-- =====================
+         SIDEBAR
+    ====================== -->
+    <aside class="sidebar">
+
+        <nav>
+
+            <button class="nav-item active" data-section="dashboard">
+                <span class="nav-icon">⌂</span>
+                <span>Home</span>
+            </button>
+
+            <button class="nav-item" data-section="members">
+                <span class="nav-icon">◉</span>
+                <span>Members</span>
+            </button>
+
+            <button class="nav-item" data-section="skills">
+                <span class="nav-icon">✦</span>
+                <span>Explore Skills</span>
+            </button>
+
+            <button class="nav-item" data-section="sessions">
+                <span class="nav-icon">◷</span>
+                <span>My Sessions</span>
+            </button>
+
+            <button class="nav-item" data-section="ledger">
+                <span class="nav-icon">↔</span>
+                <span>Credit History</span>
+            </button>
+
+        </nav>
+
+        <div class="sidebar-help">
+
+            <div class="help-icon">?</div>
+
+            <strong>How SkillSwap works</strong>
+
+            <p>
+                Teach a skill to earn time credits.
+                Use those credits to learn from others.
+            </p>
+
         </div>
 
-    </header>
+    </aside>
 
 
-    <!-- ==============================
-         MAIN LAYOUT
-    =============================== -->
-    <div class="app-container">
-
-        <!-- ==============================
-             SIDEBAR
-        =============================== -->
-        <aside class="sidebar">
-
-            <nav class="navigation">
-
-                <button class="nav-item active" data-section="dashboard">
-                    <span>⌂</span>
-                    Dashboard
-                </button>
-
-                <button class="nav-item" data-section="members">
-                    <span>♙</span>
-                    Members
-                </button>
-
-                <button class="nav-item" data-section="skills">
-                    <span>◆</span>
-                    Skills
-                </button>
-
-                <button class="nav-item" data-section="sessions">
-                    <span>◷</span>
-                    Sessions
-                </button>
-
-                <button class="nav-item" data-section="ledger">
-                    <span>▤</span>
-                    Credit Ledger
-                </button>
-
-            </nav>
-
-        </aside>
+    <!-- =====================
+         MAIN CONTENT
+    ====================== -->
+    <main class="main-content">
 
 
-        <!-- ==============================
-             MAIN CONTENT
-        =============================== -->
-        <main class="main-content">
+        <!-- ==================================
+             DASHBOARD
+        =================================== -->
+        <section
+            id="dashboard-section"
+            class="content-section active"
+        >
+
+            <!-- Welcome -->
+            <div class="welcome-section">
+
+                <div class="welcome-text">
+
+                    <span class="eyebrow">
+                        DASHBOARD / OVERVIEW
+                    </span>
+
+                    <h2>
+                        Welcome to SkillSwap! 👋
+                    </h2>
+
+                    <p>
+                        Learn something new, share what you know,
+                        and grow together using time instead of money.
+                    </p>
+
+                    <div class="welcome-actions">
+
+                        <button
+                            class="primary-button"
+                            data-section-link="skills"
+                        >
+                            Explore Skills
+                        </button>
+
+                        <button
+                            class="secondary-button"
+                            data-section-link="skills"
+                        >
+                            Offer a Skill
+                        </button>
+
+                    </div>
+
+                </div>
+
+                <div class="welcome-illustration">
+
+                    <div class="exchange-circle">
+
+                        <span>LEARN</span>
+
+                        <div class="exchange-arrow">
+                            ↔
+                        </div>
+
+                        <span>SHARE</span>
+
+                    </div>
+
+                    <small>
+                        Your knowledge has value
+                    </small>
+
+                </div>
+
+            </div>
 
 
-            <!-- ==============================
-                 DASHBOARD
-            =============================== -->
-            <section id="dashboard-section" class="content-section active">
+            <!-- Explanation -->
+            <div class="concept-banner">
 
-                <div class="page-header">
+                <div class="concept-icon">
+                    ⏱
+                </div>
 
-                    <div>
-                        <p class="eyebrow">COMMUNITY SKILL EXCHANGE</p>
+                <div>
 
-                        <h1>Welcome to SkillSwap</h1>
+                    <strong>
+                        Your time is the currency
+                    </strong>
+
+                    <p>
+                        Teach for an hour and earn a credit.
+                        Spend a credit to learn for an hour.
+                    </p>
+
+                </div>
+
+            </div>
+
+
+            <!-- Stats -->
+            <div class="dashboard-stats">
+
+                <div class="stat-card">
+
+                    <div class="stat-icon learning">
+                        ⏱
+                    </div>
+
+                    <div class="stat-content">
+
+                        <span>
+                            Learning Time Available
+                        </span>
+
+                        <strong>
+                            <span id="dashboard-credit-balance">
+                                0.0
+                            </span>
+                            <small>hrs</small>
+                        </strong>
 
                         <p>
-                            Exchange skills using time credits instead of money.
+                            Time you can use to learn
                         </p>
+
                     </div>
 
                 </div>
 
 
-                <!-- Dashboard statistics -->
+                <div class="stat-card">
 
-                <div class="stats-grid">
-
-                    <div class="stat-card">
-                        <span class="stat-label">Your Credits</span>
-                        <strong id="dashboard-credit-balance">0.0</strong>
+                    <div class="stat-icon skills">
+                        ✦
                     </div>
 
-                    <div class="stat-card">
-                        <span class="stat-label">Available Skills</span>
-                        <strong id="dashboard-skill-count">0</strong>
-                    </div>
+                    <div class="stat-content">
 
-                    <div class="stat-card">
-                        <span class="stat-label">Your Sessions</span>
-                        <strong id="dashboard-session-count">0</strong>
-                    </div>
+                        <span>
+                            Skills to Explore
+                        </span>
 
-                </div>
+                        <strong id="dashboard-skill-count">
+                            0
+                        </strong>
 
+                        <p>
+                            Skills offered by members
+                        </p>
 
-                <!-- Available skills -->
-
-                <div class="section-header">
-
-                    <div>
-                        <h2>Available Skills</h2>
-                        <p>Explore skills offered by community members.</p>
-                    </div>
-
-                    <button class="secondary-button" data-section-link="skills">
-                        View All
-                    </button>
-
-                </div>
-
-                <div id="dashboard-skills" class="skills-grid">
-
-                    <!-- JavaScript will load skill cards here -->
-
-                    <div class="empty-state">
-                        <p>No skills available yet.</p>
                     </div>
 
                 </div>
 
-            </section>
 
+                <div class="stat-card">
 
+                    <div class="stat-icon sessions">
+                        ◷
+                    </div>
 
-            <!-- ==============================
-                 MEMBERS
-            =============================== -->
-            <section id="members-section" class="content-section">
+                    <div class="stat-content">
 
-                <div class="page-header">
+                        <span>
+                            My Learning Sessions
+                        </span>
 
-                    <p class="eyebrow">COMMUNITY</p>
+                        <strong id="dashboard-session-count">
+                            0
+                        </strong>
 
-                    <h1>Members</h1>
+                        <p>
+                            Sessions you've requested
+                        </p>
 
-                    <p>View and manage SkillSwap members.</p>
+                    </div>
 
                 </div>
 
+            </div>
 
-                <div class="card">
 
-                    <div class="section-header">
+            <!-- Available Skills -->
+            <div class="section-heading">
+
+                <div>
+
+                    <span class="eyebrow">
+                        COMMUNITY
+                    </span>
+
+                    <h3>
+                        Skills you can learn
+                    </h3>
+
+                    <p>
+                        Discover what other members are ready to teach.
+                    </p>
+
+                </div>
+
+                <button
+                    class="text-button"
+                    data-section-link="skills"
+                >
+                    View all →
+                </button>
+
+            </div>
+
+
+            <div
+                id="dashboard-skills"
+                class="skills-grid"
+            >
+
+                <!-- JavaScript loads skills here -->
+
+            </div>
+
+        </section>
+
+
+
+        <!-- ==================================
+             MEMBERS
+        =================================== -->
+        <section
+            id="members-section"
+            class="content-section"
+        >
+
+            <div class="page-header">
+
+                <div>
+
+                    <span class="eyebrow">
+                        COMMUNITY
+                    </span>
+
+                    <h2>Members</h2>
+
+                    <p>
+                        Create and view members of the SkillSwap community.
+                    </p>
+
+                </div>
+
+            </div>
+
+
+            <div class="two-column-layout">
+
+                <!-- Create Member -->
+                <div class="panel">
+
+                    <div class="panel-header">
 
                         <div>
-                            <h2>Create Member</h2>
-                            <p>Add a new member to the community.</p>
+                            <h3>Join SkillSwap</h3>
+
+                            <p>
+                                Create a new community member.
+                            </p>
                         </div>
+
+                        <span class="panel-icon">
+                            +
+                        </span>
 
                     </div>
 
@@ -182,13 +373,13 @@
                         <div class="form-group">
 
                             <label for="member-name">
-                                Name
+                                Full Name
                             </label>
 
                             <input
                                 type="text"
                                 id="member-name"
-                                placeholder="Enter member name"
+                                placeholder="e.g. Rahul Kumar"
                                 required
                             >
 
@@ -198,20 +389,23 @@
                         <div class="form-group">
 
                             <label for="member-email">
-                                Email
+                                Email Address
                             </label>
 
                             <input
                                 type="email"
                                 id="member-email"
-                                placeholder="Enter email address"
+                                placeholder="e.g. rahul@example.com"
                                 required
                             >
 
                         </div>
 
 
-                        <button type="submit" class="primary-button">
+                        <button
+                            type="submit"
+                            class="primary-button full-width"
+                        >
                             Create Member
                         </button>
 
@@ -220,51 +414,86 @@
                 </div>
 
 
-                <div class="section-header">
+                <!-- Member List -->
+                <div class="panel">
 
-                    <div>
-                        <h2>Community Members</h2>
+                    <div class="panel-header">
+
+                        <div>
+                            <h3>Community Members</h3>
+
+                            <p>
+                                People participating in SkillSwap.
+                            </p>
+                        </div>
+
+                    </div>
+
+
+                    <div
+                        id="members-list"
+                        class="members-list"
+                    >
+
+                        <!-- JavaScript loads members -->
+
                     </div>
 
                 </div>
 
+            </div>
 
-                <div id="members-list" class="members-grid">
+        </section>
 
-                    <!-- JavaScript will load members here -->
+
+
+        <!-- ==================================
+             SKILLS
+        =================================== -->
+        <section
+            id="skills-section"
+            class="content-section"
+        >
+
+            <div class="page-header">
+
+                <div>
+
+                    <span class="eyebrow">
+                        EXPLORE
+                    </span>
+
+                    <h2>Skills</h2>
+
+                    <p>
+                        Find something to learn or offer a skill you know.
+                    </p>
 
                 </div>
 
-            </section>
+            </div>
 
 
+            <div class="two-column-layout">
 
-            <!-- ==============================
-                 SKILLS
-            =============================== -->
-            <section id="skills-section" class="content-section">
+                <!-- Create Skill -->
+                <div class="panel">
 
-                <div class="page-header">
-
-                    <p class="eyebrow">SKILL EXCHANGE</p>
-
-                    <h1>Skills</h1>
-
-                    <p>Discover skills offered by community members.</p>
-
-                </div>
-
-
-                <!-- Create skill offer -->
-
-                <div class="card">
-
-                    <div class="section-header">
+                    <div class="panel-header">
 
                         <div>
-                            <h2>Offer a Skill</h2>
-                            <p>Share your knowledge with the community.</p>
+
+                            <h3>Share Your Skill</h3>
+
+                            <p>
+                                Teach something you know and earn time credits.
+                            </p>
+
                         </div>
+
+                        <span class="panel-icon">
+                            ✦
+                        </span>
 
                     </div>
 
@@ -280,7 +509,7 @@
                             <input
                                 type="text"
                                 id="skill-name"
-                                placeholder="Example: Java Programming"
+                                placeholder="e.g. Python Programming"
                                 required
                             >
 
@@ -295,7 +524,8 @@
 
                             <textarea
                                 id="skill-description"
-                                placeholder="Describe what you can teach..."
+                                placeholder="Tell others what you can teach..."
+                                rows="4"
                             ></textarea>
 
                         </div>
@@ -304,7 +534,7 @@
                         <div class="form-group">
 
                             <label for="skill-hours">
-                                Available Hours
+                                Available Teaching Hours
                             </label>
 
                             <input
@@ -312,7 +542,7 @@
                                 id="skill-hours"
                                 min="0.5"
                                 step="0.5"
-                                placeholder="Example: 5"
+                                placeholder="e.g. 4"
                                 required
                             >
 
@@ -322,22 +552,24 @@
                         <div class="form-group">
 
                             <label for="skill-provider">
-                                Provider ID
+                                Your Member ID
                             </label>
 
                             <input
                                 type="number"
                                 id="skill-provider"
-                                min="1"
-                                placeholder="Member ID"
+                                placeholder="e.g. 3"
                                 required
                             >
 
                         </div>
 
 
-                        <button type="submit" class="primary-button">
-                            Create Skill Offer
+                        <button
+                            type="submit"
+                            class="primary-button full-width"
+                        >
+                            Offer This Skill
                         </button>
 
                     </form>
@@ -345,58 +577,92 @@
                 </div>
 
 
-                <!-- Skill list -->
+                <!-- Skills -->
+                <div class="panel wide-panel">
 
-                <div class="section-header">
-
-                    <div>
-                        <h2>Available Skills</h2>
-                    </div>
-
-                </div>
-
-
-                <div id="skills-list" class="skills-grid">
-
-                    <!-- JavaScript will load skills here -->
-
-                </div>
-
-            </section>
-
-
-
-            <!-- ==============================
-                 SESSIONS
-            =============================== -->
-            <section id="sessions-section" class="content-section">
-
-                <div class="page-header">
-
-                    <p class="eyebrow">SESSION MANAGEMENT</p>
-
-                    <h1>Sessions</h1>
-
-                    <p>Request, confirm and complete skill sessions.</p>
-
-                </div>
-
-
-                <!-- Request session -->
-
-                <div class="card">
-
-                    <div class="section-header">
+                    <div class="panel-header">
 
                         <div>
-                            <h2>Request a Session</h2>
-                            <p>Request time from another member.</p>
+
+                            <h3>Available Skills</h3>
+
+                            <p>
+                                Learn from other members in the community.
+                            </p>
+
                         </div>
 
                     </div>
 
 
-                    <form id="session-form">
+                    <div
+                        id="skills-list"
+                        class="skills-grid"
+                    >
+
+                        <!-- JavaScript loads skills -->
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+
+        <!-- ==================================
+             SESSIONS
+        =================================== -->
+        <section
+            id="sessions-section"
+            class="content-section"
+        >
+
+            <div class="page-header">
+
+                <div>
+
+                    <span class="eyebrow">
+                        LEARNING
+                    </span>
+
+                    <h2>My Sessions</h2>
+
+                    <p>
+                        Request, manage and complete your learning sessions.
+                    </p>
+
+                </div>
+
+            </div>
+
+
+            <div class="panel session-request-panel">
+
+                <div class="panel-header">
+
+                    <div>
+
+                        <h3>Request a Learning Session</h3>
+
+                        <p>
+                            Choose a skill and decide how much time you want to learn.
+                        </p>
+
+                    </div>
+
+                    <span class="panel-icon">
+                        ◷
+                    </span>
+
+                </div>
+
+
+                <form id="session-form">
+
+                    <div class="form-grid">
 
                         <div class="form-group">
 
@@ -407,8 +673,7 @@
                             <input
                                 type="number"
                                 id="session-skill"
-                                min="1"
-                                placeholder="Skill offer ID"
+                                placeholder="e.g. 2"
                                 required
                             >
 
@@ -418,14 +683,13 @@
                         <div class="form-group">
 
                             <label for="session-requester">
-                                Requester ID
+                                Your Member ID
                             </label>
 
                             <input
                                 type="number"
                                 id="session-requester"
-                                min="1"
-                                placeholder="Your member ID"
+                                placeholder="e.g. 2"
                                 required
                             >
 
@@ -435,7 +699,7 @@
                         <div class="form-group">
 
                             <label for="session-hours">
-                                Requested Hours
+                                Learning Hours
                             </label>
 
                             <input
@@ -443,60 +707,102 @@
                                 id="session-hours"
                                 min="0.5"
                                 step="0.5"
-                                placeholder="Example: 2"
+                                placeholder="e.g. 1.5"
                                 required
                             >
 
                         </div>
 
+                    </div>
 
-                        <button type="submit" class="primary-button">
-                            Request Session
-                        </button>
 
-                    </form>
+                    <button
+                        type="submit"
+                        class="primary-button"
+                    >
+                        Request Session
+                    </button>
+
+                </form>
+
+            </div>
+
+
+            <div class="section-heading">
+
+                <div>
+
+                    <span class="eyebrow">
+                        ACTIVITY
+                    </span>
+
+                    <h3>
+                        Your Sessions
+                    </h3>
 
                 </div>
 
+            </div>
 
-                <!-- Sessions -->
 
-                <div class="section-header">
+            <div
+                id="sessions-list"
+                class="sessions-list"
+            >
+
+                <!-- JavaScript loads sessions -->
+
+            </div>
+
+        </section>
+
+
+
+        <!-- ==================================
+             CREDIT LEDGER
+        =================================== -->
+        <section
+            id="ledger-section"
+            class="content-section"
+        >
+
+            <div class="page-header">
+
+                <div>
+
+                    <span class="eyebrow">
+                        TRANSACTIONS
+                    </span>
+
+                    <h2>Credit History</h2>
+
+                    <p>
+                        See how your time credits have been earned and spent.
+                    </p>
+
+                </div>
+
+            </div>
+
+
+            <div class="panel">
+
+                <div class="panel-header">
 
                     <div>
-                        <h2>All Sessions</h2>
+
+                        <h3>Your Time-Credit Activity</h3>
+
+                        <p>
+                            Every completed session creates a credit transaction.
+                        </p>
+
                     </div>
 
                 </div>
 
 
-                <div id="sessions-list" class="sessions-list">
-
-                    <!-- JavaScript will load sessions here -->
-
-                </div>
-
-            </section>
-
-
-
-            <!-- ==============================
-                 CREDIT LEDGER
-            =============================== -->
-            <section id="ledger-section" class="content-section">
-
-                <div class="page-header">
-
-                    <p class="eyebrow">TRANSACTION HISTORY</p>
-
-                    <h1>Credit Ledger</h1>
-
-                    <p>View credit transfers between members.</p>
-
-                </div>
-
-
-                <div class="card">
+                <div class="ledger-search">
 
                     <div class="form-group">
 
@@ -507,8 +813,7 @@
                         <input
                             type="number"
                             id="ledger-member"
-                            min="1"
-                            placeholder="Enter member ID"
+                            placeholder="Enter your member ID"
                         >
 
                     </div>
@@ -518,38 +823,42 @@
                         id="load-ledger-button"
                         class="primary-button"
                     >
-                        View Ledger
+                        View Credit History
                     </button>
 
                 </div>
 
 
-                <div id="ledger-list" class="ledger-list">
+                <div
+                    id="ledger-list"
+                    class="ledger-list"
+                >
 
-                    <!-- JavaScript will load ledger entries here -->
+                    <!-- JavaScript loads ledger -->
 
                 </div>
 
-            </section>
+            </div>
 
-        </main>
-
-    </div>
+        </section>
 
 
-    <!-- ==============================
-         NOTIFICATION
-    =============================== -->
+    </main>
 
-    <div id="notification" class="notification"></div>
+</div>
 
 
-    <!-- ==============================
-         JAVASCRIPT
-    =============================== -->
+<!-- =========================
+     NOTIFICATION
+========================= -->
+<div
+    id="notification"
+    class="notification"
+>
+</div>
 
-    <script src="script.js"></script>
+
+<script src="script.js"></script>
 
 </body>
-
 </html>
